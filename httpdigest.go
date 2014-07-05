@@ -17,5 +17,7 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println(result)
+	log.Println(d.Path)
+	d.Get(u + "hoge.txt")
 
 }
