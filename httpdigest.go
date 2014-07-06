@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"io/ioutil"
 )
 
 var (
@@ -12,12 +13,22 @@ var (
 func main() {
 	u := "http://localhost/private/"
 	d := &digestHeaders{}
-	result, err := d.Auth(username, password, u)
+	var result bool
+	var err error
+	result, err, d = d.Auth(username, password, u)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println(result)
-	log.Println(d.Path)
-	d.Get(u + "hoge.txt")
+	log.Println(d)
+	resp, err := d.Get(u + "hoge.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(string(body))
 
 }
