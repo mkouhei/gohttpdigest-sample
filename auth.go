@@ -64,10 +64,11 @@ func (d *digestHeaders) digestChecksum() {
 }
 
 func (d *digestHeaders) Get(uri string) (*http.Response, error) {
+	d.Nc += 0x1
 	u, _ := url.Parse(uri)
 	d.Path = u.Path
 	d.digestChecksum()
-	response := H(strings.Join([]string{d.HA1, d.Nonce, fmt.Sprintf("%08d", 1),
+	response := H(strings.Join([]string{d.HA1, d.Nonce, fmt.Sprintf("%08x", d.Nc),
 		d.Cnonce, d.Qop, d.HA2}, ":"))
 	AuthHeader := fmt.Sprintf(`Digest username="%s", realm="%s", nonce="%s", uri="%s", cnonce="%s", nc=%08x, qop=%s, response="%s", algorithm=%s`,
 		d.Username, d.Realm, d.Nonce, d.Path, d.Cnonce, d.Nc, d.Qop, response, d.Algorithm)
@@ -112,7 +113,7 @@ func (d *digestHeaders) Auth(username string, password string, uri string) (bool
 		d.Opaque = authn["opaque"]
 		d.Algorithm = authn["algorithm"]
 		d.Cnonce = RandomKey()
-		d.Nc = 0x1
+		d.Nc = 0x0
 		d.Username = username
 		d.Password = password
 

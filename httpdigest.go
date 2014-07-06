@@ -30,5 +30,7 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println(string(body))
-
+	resp, _ = d.Get(u + "hoge.txt")
+	body, _ = ioutil.ReadAll(resp.Body)
+	log.Println(string(body))
 }
