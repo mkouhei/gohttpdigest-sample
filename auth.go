@@ -30,7 +30,7 @@ type digestHeaders struct {
 	HA2       string
 	Cnonce    string
 	Path      string
-	Nc        int
+	Nc        int16
 	Username  string
 	Password  string
 }
@@ -69,7 +69,7 @@ func (d *digestHeaders) Get(uri string) (*http.Response, error) {
 	d.digestChecksum()
 	response := H(strings.Join([]string{d.HA1, d.Nonce, fmt.Sprintf("%08d", 1),
 		d.Cnonce, d.Qop, d.HA2}, ":"))
-	AuthHeader := fmt.Sprintf(`Digest username="%s", realm="%s", nonce="%s", uri="%s", cnonce="%s", nc=%08d, qop=%s, response="%s", algorithm=%s`,
+	AuthHeader := fmt.Sprintf(`Digest username="%s", realm="%s", nonce="%s", uri="%s", cnonce="%s", nc=%08x, qop=%s, response="%s", algorithm=%s`,
 		d.Username, d.Realm, d.Nonce, d.Path, d.Cnonce, d.Nc, d.Qop, response, d.Algorithm)
 	if d.Opaque != "" {
 		AuthHeader = fmt.Sprintf(`%s, opaque="%s"`, AuthHeader, d.Opaque)
@@ -112,7 +112,7 @@ func (d *digestHeaders) Auth(username string, password string, uri string) (bool
 		d.Opaque = authn["opaque"]
 		d.Algorithm = authn["algorithm"]
 		d.Cnonce = RandomKey()
-		d.Nc = 1
+		d.Nc = 0x1
 		d.Username = username
 		d.Password = password
 
@@ -137,7 +137,7 @@ func (d *digestHeaders) Auth(username string, password string, uri string) (bool
 
 			req.Header.Set("Authorization", AuthHeader)
 			resp, err = client.Do(req)
-*/
+		*/
 	} else {
 		return false, fmt.Errorf("response status code should have been 401, it was %v", resp.StatusCode), nil
 	}
