@@ -15,7 +15,7 @@ func main() {
 	d := &digestHeaders{}
 	var result bool
 	var err error
-	result, err, d = d.Auth(username, password, u)
+	d, err = d.Auth(username, password, u)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,6 +1,7 @@
 /*
 original is https://github.com/mattbaird/http-digest-auth-client
 */
+
 package main
 
 import (
@@ -82,11 +83,10 @@ func (d *digestHeaders) Get(uri string) (*http.Response, error) {
 	}
 	req.Header.Set("Authorization", AuthHeader)
 	client := &http.Client{}
-	//resp, err := client.Do(req)
 	return client.Do(req)
 }
 
-func (d *digestHeaders) Auth(username string, password string, uri string) (bool, error, *digestHeaders) {
+func (d *digestHeaders) Auth(username string, password string, uri string) (*digestHeaders, error) {
 
 	client := &http.Client{}
 	jar := &myjar{}
@@ -121,26 +121,12 @@ func (d *digestHeaders) Auth(username string, password string, uri string) (bool
 		if err != nil {
 			log.Fatal(err)
 		}
-		return resp.StatusCode == 200, err, d
-		/*
-			// HA1 and HA2
-			d.digestChecksum()
-
-			// response
-			response := H(strings.Join([]string{d.HA1, d.Nonce, fmt.Sprintf("%08d", 1), d.Cnonce, d.Qop, d.HA2}, ":"))
-
-			// now make header
-			AuthHeader := fmt.Sprintf(`Digest username="%s", realm="%s", nonce="%s", uri="%s", cnonce="%s", nc=%08d, qop=%s, response="%s", algorithm=%s`,
-				d.Username, d.Realm, d.Nonce, d.Path, d.Cnonce, d.Nc, d.Qop, response, d.Algorithm)
-			if d.Opaque != "" {
-				AuthHeader = fmt.Sprintf(`%s, opaque="%s"`, AuthHeader, d.Opaque)
-			}
-
-			req.Header.Set("Authorization", AuthHeader)
-			resp, err = client.Do(req)
-		*/
+		if resp.StatusCode != 200 {
+			d = &digestHeaders{}
+		}
+		return d, err
 	} else {
-		return false, fmt.Errorf("response status code should have been 401, it was %v", resp.StatusCode), nil
+		return nil, fmt.Errorf("response status code should have been 401, it was %v", resp.StatusCode)
 	}
 }
 
